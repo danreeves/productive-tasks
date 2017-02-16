@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { connect } from 'react-redux';
 import '../global-styles';
 
 import H1 from '../components/H1';
@@ -21,4 +20,4 @@ function App ({ children }) {
     </AppWrapper>);
 }
 
-export default connect(state => state)(App);
+export default App;

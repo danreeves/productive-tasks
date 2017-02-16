@@ -1,6 +1,11 @@
 import React from 'react';
-import styled from 'styled-components';
+import { Link } from 'react-router';
+import H2 from '../components/H2';
+import Tagline from '../components/Tagline';
 
-const H2 = styled.h2`color: green`;
-
-export default () => (<div><H2>404</H2></div>);
+export default () => (<div>
+    <header>
+        <H2 colour="green">404</H2>
+        <Tagline>Getting off track? <Link href="/">Home</Link></Tagline>
+    </header>
+</div>);

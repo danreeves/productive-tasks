@@ -5,6 +5,7 @@ const path = require('path');
 const webpack = require('webpack');
 const ManifestPlugin = require('webpack-manifest-plugin');
 const StringReplacePlugin = require('string-replace-webpack-plugin');
+const WebpackCleanupPlugin = require('webpack-cleanup-plugin');
 const pkg = require('./package.json');
 
 module.exports = [
@@ -72,6 +73,9 @@ module.exports = [
                     NODE_ENV: JSON.stringify('production'),
                 },
             }),
+            new WebpackCleanupPlugin({
+                exclude: ['server.js', 'build-manifest.json'],
+            }),
         ],
     },
     {
@@ -83,7 +87,9 @@ module.exports = [
             path: path.join(__dirname, 'dist'),
             libraryTarget: 'commonjs2',
         },
-        externals: Object.keys(pkg.dependencies).concat([{'styled-components/lib/models/StyleSheet': 'commonjs styled-components/lib/models/StyleSheet'}]),
+        externals: Object.keys(pkg.dependencies).concat([{
+            'styled-components/lib/models/StyleSheet': 'commonjs styled-components/lib/models/StyleSheet',
+        }]),
         target: 'node',
         devtool: 'inline-source-map',
         node: {
