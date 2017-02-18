@@ -18,7 +18,7 @@ export default function HTML ({ html, styles, initialState }) {
                 <meta name="mobile-web-app-capable" content="yes">
 
                 <title>Productive Tasks</title>
-                <style type="text/css">${styles}</style>
+                <style id="ssr-styles" type="text/css">${styles}</style>
             </head>
             <body>
                 <div id="root">${html}</div>

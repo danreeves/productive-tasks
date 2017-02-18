@@ -7,5 +7,5 @@ export default styled.ul`
 
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: flex-start;
 `;

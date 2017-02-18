@@ -9,3 +9,5 @@ const store = createStore();
 
 // Render HTML on the browser
 ReactDOM.render(<Provider store={store}>{routes}</Provider>, document.getElementById('root'));
+// Remove the ssr rendered styles
+document.getElementById('ssr-styles').remove();
