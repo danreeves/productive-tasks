@@ -47,21 +47,38 @@ export const reducer = createReducer(initialState, {
 });
 
 function Tasks ({ tasks, onChange, newTask }) {
+    const todo = tasks.allIds.filter(task => !tasks.byId[task].done);
+    const done = tasks.allIds.filter(task => tasks.byId[task].done);
     return (<div>
         <header>
             <H2>Hi, Dan 👋</H2>
             <Tagline>Let&apos;s get busy</Tagline>
             <Button onClick={newTask}>New task</Button>
         </header>
-        <TaskList>
-            {tasks.allIds.map(task => <Task
-              taskId={task}
-              task={tasks.byId[task].task}
-              outcome={tasks.byId[task].outcome}
-              desire={tasks.byId[task].desire}
-              onChange={onChange}
-            />)}
-        </TaskList>
+        {(todo.length) ?
+            <div>
+                <h3>To do</h3>
+                <TaskList>
+                    {todo.map(task => <Task
+                      {...tasks.byId[task]}
+                      taskId={task}
+                      onChange={onChange}
+                    />)}
+                </TaskList>
+            </div>
+            : null}
+        {(done.length) ?
+            <div>
+                <h3>Done</h3>
+                <TaskList done>
+                    {done.map(task => <Task
+                      {...tasks.byId[task]}
+                      taskId={task}
+                      onChange={onChange}
+                    />)}
+                </TaskList>
+            </div>
+        : null}
     </div>);
 }
 
@@ -87,6 +104,7 @@ function mapDispatchToProps (dispatch) {
                     task: 'Build a react app',
                     outcome: 'learn React',
                     desire: 'become a better developer',
+                    done: false,
                 },
             });
         },

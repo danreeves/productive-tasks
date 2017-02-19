@@ -43,6 +43,7 @@ class Task extends Component {
         // Method bindings
         this.toggleEditing = this.toggleEditing.bind(this);
         this.doubleClickEdit = this.doubleClickEdit.bind(this);
+        this.markDone = this.markDone.bind(this);
 
         // Updates
         this.onChange = (key) => {
@@ -70,9 +71,17 @@ class Task extends Component {
         }
     }
 
+    markDone () {
+        this.onChange('done')({
+            target: {
+                value: true,
+            },
+        });
+    }
+
 
     render () {
-        const { task, outcome, desire } = this.props;
+        const { task, outcome, desire, done } = this.props;
         const { editing } = this.state;
 
         const Todo = (<Line>
@@ -108,7 +117,10 @@ class Task extends Component {
             {Todo}
             {Outcome}
             {Desire}
-            <Button onClick={this.toggleEditing}>{(editing) ? 'Save' : 'Edit'}</Button>
+            {(done) ? null : <div>
+                <Button small onClick={this.toggleEditing}>{(editing) ? 'Save' : 'Edit'}</Button>
+                {(editing) ? null : <Button small negative onClick={this.markDone}>Done</Button>}
+            </div>}
         </LI>);
     }
 }

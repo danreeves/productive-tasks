@@ -8,4 +8,5 @@ export default styled.ul`
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
+    ${props => ((props.done) ? 'opacity: 0.4;' : '')}
 `;
