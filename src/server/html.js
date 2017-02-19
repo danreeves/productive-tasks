@@ -19,6 +19,13 @@ export default function HTML ({ html, styles, initialState }) {
 
                 <title>Productive Tasks</title>
                 <style id="ssr-styles" type="text/css">${styles}</style>
+                <noscript>
+                    <style type="text/css">
+                        button {
+                            display: none;
+                        }
+                    </style>
+                </noscript>
             </head>
             <body>
                 <div id="root">${html}</div>

@@ -24,4 +24,7 @@ injectGlobal`
             text-decoration: underline;
         }
     }
+    .no-js button {
+        display: none;
+    }
 `;

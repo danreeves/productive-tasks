@@ -1,4 +1,5 @@
 /* eslint no-param-reassign: 0 */
+import 'dotenv/config';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
 import styleSheet from 'styled-components/lib/models/StyleSheet';
@@ -7,6 +8,7 @@ import { Provider } from 'react-redux';
 import Koa from 'koa';
 import serve from 'koa-static';
 import { cookie } from 'redux-effects-universal-cookie';
+import PouchDB from 'pouchdb-node';
 
 import favicon from './server/favicon';
 import bundle from './server/js-bundle';
@@ -14,6 +16,12 @@ import HTML from './server/html';
 import routes from './routes';
 import createStore from './store';
 
+const pouchdb = new PouchDB('https://danreeves.cloudant.com/productive-tasks', {
+    auth: {
+        username: process.env.cloudant_username,
+        password: process.env.cloudant_password,
+    },
+});
 const app = new Koa();
 const port = 3000;
 
@@ -23,12 +31,22 @@ app.use(serve('static'));
 
 app.use(async (ctx, next) => {
     console.log(`Request: ${ctx.url}`);
+    const cookies = ctx.cookies;
     // Set up initial store
-    const store = createStore(ctx.cookies);
-    if (ctx.cookies.get('user')) {
-        const user = JSON.parse(decodeURIComponent(await store.dispatch(cookie('user'))));
-        store.dispatch({ type: 'LOG_IN_SUCCESS', user });
-    }
+    const store = createStore({
+        cookies,
+        pouchdb,
+    });
+    const { state } = await pouchdb.get('tasks');
+    store.dispatch({
+        type: 'redux-pouchdb/SET_REDUCER',
+        reducer: 'tasks',
+        state,
+    });
+    // if (cookies.get('user')) {
+        // const user = JSON.parse(decodeURIComponent(await store.dispatch(cookie('user'))));
+        // store.dispatch({ type: 'LOG_IN_SUCCESS', user });
+    // }
     // Match route in router
     match({ routes, location: ctx.url }, async (error, redirectLocation, renderProps) => {
         if (error) {

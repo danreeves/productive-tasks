@@ -1,6 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { persistentReducer } from 'redux-pouchdb';
 import createReducer from '../util/create-reducer';
+import uuid from '../util/uuid';
 
 import TaskList from '../components/TaskList';
 import Task from '../components/Task';
@@ -11,6 +13,7 @@ import Button from '../components/Button';
 const types = {
     ADD_TASK: 'ADD_TASK',
     UPDATE_TASK: 'UPDATE_TASK',
+    CLEAR_ALL: 'CLEAR_ALL',
 };
 
 const initialState = {
@@ -18,15 +21,21 @@ const initialState = {
     allIds: [],
 };
 
-export const reducer = createReducer(initialState, {
+export const reducer = persistentReducer(createReducer(initialState, {
     [types.ADD_TASK]: function addTask (state, action) {
         return {
             ...state,
             byId: {
                 ...state.byId,
-                [action.task.id]: action.task,
+                [action.newId]: {
+                    id: action.newId,
+                    task: 'Build a react app',
+                    outcome: 'learn React',
+                    desire: 'become a better developer',
+                    done: false,
+                },
             },
-            allIds: [action.task.id, ...state.allIds],
+            allIds: [action.newId, ...state.allIds],
         };
     },
     [types.UPDATE_TASK]: function updateTask (state, action) {
@@ -41,9 +50,16 @@ export const reducer = createReducer(initialState, {
             },
         };
     },
-});
+    [types.CLEAR_ALL]: function clearAll (state) {
+        return {
+            ...state,
+            byId: {},
+            allIds: [],
+        };
+    },
+}), 'tasks');
 
-function Tasks ({ tasks, onChange, newTask }) {
+function Tasks ({ tasks, onChange, newTask, clearAll }) {
     const todo = tasks.allIds.filter(task => !tasks.byId[task].done);
     const done = tasks.allIds.filter(task => tasks.byId[task].done);
     return (<div>
@@ -51,6 +67,7 @@ function Tasks ({ tasks, onChange, newTask }) {
             <H2>Hi, Dan 👋</H2>
             <Tagline>Let&apos;s get busy</Tagline>
             <Button onClick={newTask}>New task</Button>
+            {(tasks.allIds.length) ? <Button negative onClick={clearAll}>Clear all</Button> : null}
         </header>
         {(todo.length) ?
             <div>
@@ -96,15 +113,14 @@ function mapDispatchToProps (dispatch) {
         newTask () {
             dispatch({
                 type: types.ADD_TASK,
-                task: {
-                    id: Math.floor(Math.random().toFixed(5) * 100000),
-                    task: 'Build a react app',
-                    outcome: 'learn React',
-                    desire: 'become a better developer',
-                    done: false,
-                },
+                newId: uuid(),
             });
         },
+        clearAll () {
+            dispatch({
+                type: types.CLEAR_ALL,
+            })
+        }
     };
 }
 
