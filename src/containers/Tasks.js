@@ -20,7 +20,6 @@ const initialState = {
 
 export const reducer = createReducer(initialState, {
     [types.ADD_TASK]: function addTask (state, action) {
-        console.log('> State', state);
         return {
             ...state,
             byId: {
@@ -31,8 +30,6 @@ export const reducer = createReducer(initialState, {
         };
     },
     [types.UPDATE_TASK]: function updateTask (state, action) {
-        console.log('> State', state);
-        console.log('> Action', action);
         return {
             ...state,
             byId: {
