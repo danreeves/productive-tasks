@@ -68,11 +68,6 @@ module.exports = [
                 fileName: 'build-manifest.json',
             }),
             new StringReplacePlugin(),
-            new webpack.DefinePlugin({
-                'process.env': {
-                    NODE_ENV: JSON.stringify('production'),
-                },
-            }),
             new WebpackCleanupPlugin({
                 exclude: ['server.js', 'build-manifest.json'],
             }),

@@ -39,7 +39,6 @@ class Task extends Component {
         this.state = {
             editing: false,
         };
-
         // Method bindings
         this.toggleEditing = this.toggleEditing.bind(this);
         this.doubleClickEdit = this.doubleClickEdit.bind(this);
@@ -125,4 +124,4 @@ class Task extends Component {
     }
 }
 
-export default connect()(Task);
+export default Task;

@@ -9,6 +9,8 @@ import Koa from 'koa';
 import serve from 'koa-static';
 import { cookie } from 'redux-effects-universal-cookie';
 import PouchDB from 'pouchdb-node';
+import upsert from 'pouchdb-upsert';
+import get from 'lodash.get';
 
 import favicon from './server/favicon';
 import bundle from './server/js-bundle';
@@ -16,6 +18,7 @@ import HTML from './server/html';
 import routes from './routes';
 import createStore from './store';
 
+PouchDB.plugin(upsert);
 const pouchdb = new PouchDB('https://danreeves.cloudant.com/productive-tasks', {
     auth: {
         username: process.env.cloudant_username,
@@ -37,16 +40,18 @@ app.use(async (ctx, next) => {
         cookies,
         pouchdb,
     });
-    const { state } = await pouchdb.get('tasks');
-    store.dispatch({
-        type: 'redux-pouchdb/SET_REDUCER',
-        reducer: 'tasks',
-        state,
-    });
-    // if (cookies.get('user')) {
-        // const user = JSON.parse(decodeURIComponent(await store.dispatch(cookie('user'))));
-        // store.dispatch({ type: 'LOG_IN_SUCCESS', user });
-    // }
+    // Check if user is logged in
+    if (cookies.get('user')) {
+        const user = JSON.parse(decodeURIComponent(await store.dispatch(cookie('user'))));
+        store.dispatch({ type: 'LOG_IN', user });
+        const data = await pouchdb.get(user.id);
+        if (get(data, 'state.tasks.allIds').length) {
+            store.dispatch({
+                type: 'HYDRATE',
+                state: data.state.tasks,
+            });
+        }
+    }
     // Match route in router
     match({ routes, location: ctx.url }, async (error, redirectLocation, renderProps) => {
         if (error) {
