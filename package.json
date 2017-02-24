@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "trash ./dist && webpack --watch --define process.env.NODE_ENV='\"development\"' & nodemon dist/server.js",
-    "build": "webpack --define process.env.NODE_ENV='\"production\"'",
+    "build": "trash ./dist && webpack -p",
     "start": "forever start dist/server.js"
   },
   "dependencies": {

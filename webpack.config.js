@@ -16,7 +16,7 @@ module.exports = [
         devtool: 'source-map',
         output: {
             filename: '[name].[hash].js',
-            path: path.join(__dirname, 'dist'),
+            path: path.join(__dirname, 'dist', '/'),
         },
         module: {
             rules: [
@@ -48,19 +48,6 @@ module.exports = [
                     test: /\.json$/,
                     loader: 'json-loader',
                 },
-                {
-                    test: /firebase/,
-                    loader: StringReplacePlugin.replace({
-                        replacements: [
-                            {
-                                pattern: /"process"/ig,
-                                replacement () {
-                                    return '"thisisnotdefinedok"';
-                                },
-                            },
-                        ],
-                    }),
-                },
             ],
         },
         plugins: [
@@ -79,7 +66,7 @@ module.exports = [
         },
         output: {
             filename: '[name].js',
-            path: path.join(__dirname, 'dist'),
+            path: path.join(__dirname, 'dist', '/'),
             libraryTarget: 'commonjs2',
         },
         externals: Object.keys(pkg.dependencies).concat([{
