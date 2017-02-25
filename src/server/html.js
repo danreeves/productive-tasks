@@ -1,8 +1,7 @@
 import path from 'path';
-import jsonfile from 'jsonfile';
 import serialize from 'serialize-javascript';
 
-const manifest = jsonfile.readFileSync(path.join(__dirname, 'build-manifest.json'));
+const manifest = require('./build-manifest.json');
 
 export default function HTML ({ html, styles, initialState }) {
     return `

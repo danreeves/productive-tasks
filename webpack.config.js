@@ -1,12 +1,10 @@
-/*
-eslint import/no-extraneous-dependencies: 0
- */
 const path = require('path');
 const webpack = require('webpack');
 const ManifestPlugin = require('webpack-manifest-plugin');
 const StringReplacePlugin = require('string-replace-webpack-plugin');
-const WebpackCleanupPlugin = require('webpack-cleanup-plugin');
-const pkg = require('./package.json');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+const nodeExternals = require('webpack-node-externals');
+const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 
 module.exports = [
     {
@@ -55,23 +53,37 @@ module.exports = [
                 fileName: 'build-manifest.json',
             }),
             new StringReplacePlugin(),
-            new WebpackCleanupPlugin({
+            new CleanWebpackPlugin(['dist'], {
+                verbose: false,
                 exclude: ['server.js', 'build-manifest.json'],
             }),
+            new FriendlyErrorsWebpackPlugin(),
+            new webpack.NoEmitOnErrorsPlugin(),
         ],
     },
     {
         entry: {
-            server: ['babel-polyfill', './src/server.js'],
+            server: './src/server.js',
         },
         output: {
             filename: '[name].js',
             path: path.join(__dirname, 'dist', '/'),
             libraryTarget: 'commonjs2',
         },
-        externals: Object.keys(pkg.dependencies).concat([{
-            'styled-components/lib/models/StyleSheet': 'commonjs styled-components/lib/models/StyleSheet',
-        }]),
+        externals: [
+            './build-manifest.json',
+            nodeExternals({
+                whitelist: [
+                    /\.(eot|woff|woff2|ttf|otf)$/,
+                    /\.(svg|png|jpg|jpeg|gif|ico|webm)$/,
+                    /\.(mp4|mp3|ogg|swf|webp)$/,
+                    /\.(css|scss|sass|less|styl)$/,
+                ],
+            }),
+        ],
+        performance: {
+            hints: false,
+        },
         target: 'node',
         devtool: 'inline-source-map',
         node: {
@@ -84,7 +96,22 @@ module.exports = [
             __dirname: false,
         },
         plugins: [
-            new webpack.IgnorePlugin(/vertx/),
+            // In order to provide sourcemaps, we automagically insert this at the
+            // top of each file using the BannerPlugin.
+            new webpack.BannerPlugin({
+                raw: true,
+                entryOnly: false,
+                banner: `require('${
+                  // Is source-map-support installed as project dependency, or linked?
+                  (require.resolve('source-map-support').indexOf(process.cwd()) === 0)
+                    // If it's resolvable from the project root, it's a project dependency.
+                    ? 'source-map-support/register'
+                    // It's not under the project, it's linked via lerna.
+                    : require.resolve('source-map-support/register')
+                }')`,
+            }),
+            new FriendlyErrorsWebpackPlugin(),
+            new webpack.NoEmitOnErrorsPlugin(),
         ],
         module: {
             rules: [

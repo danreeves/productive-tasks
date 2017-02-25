@@ -1,5 +1,6 @@
 /* eslint no-param-reassign: 0 */
 import 'dotenv/config';
+import 'babel-polyfill';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
 import styleSheet from 'styled-components/lib/models/StyleSheet';
