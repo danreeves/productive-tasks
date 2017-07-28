@@ -5,6 +5,7 @@ const StringReplacePlugin = require('string-replace-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const nodeExternals = require('webpack-node-externals');
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = [
     {
@@ -16,6 +17,9 @@ module.exports = [
             filename: '[name].[hash].js',
             path: path.join(__dirname, 'dist', '/'),
         },
+        externals: [
+            'crypto',
+        ],
         module: {
             rules: [
                 {
@@ -53,12 +57,32 @@ module.exports = [
                 fileName: 'build-manifest.json',
             }),
             new StringReplacePlugin(),
+            new webpack.DefinePlugin({
+                'process.env.NODE_ENV': JSON.stringify('production'),
+            }),
             new CleanWebpackPlugin(['dist'], {
                 verbose: false,
                 exclude: ['server.js', 'build-manifest.json'],
             }),
             new FriendlyErrorsWebpackPlugin(),
             new webpack.NoEmitOnErrorsPlugin(),
+            new webpack.LoaderOptionsPlugin({
+                minimize: true,
+                debug: false,
+            }),
+            new webpack.optimize.UglifyJsPlugin({
+                beautify: false,
+                mangle: {
+                    screw_ie8: true,
+                    keep_fnames: true,
+                },
+                compress: {
+                    screw_ie8: true,
+                },
+                comments: false,
+                sourceMap: true,
+            }),
+            new BundleAnalyzerPlugin(),
         ],
     },
     {
@@ -72,20 +96,15 @@ module.exports = [
         },
         externals: [
             './build-manifest.json',
-            nodeExternals({
-                whitelist: [
-                    /\.(eot|woff|woff2|ttf|otf)$/,
-                    /\.(svg|png|jpg|jpeg|gif|ico|webm)$/,
-                    /\.(mp4|mp3|ogg|swf|webp)$/,
-                    /\.(css|scss|sass|less|styl)$/,
-                ],
-            }),
+            nodeExternals(),
         ],
+        target: 'node',
+        devtool: 'source-map',
+        stats: 'none',
+        profile: false,
         performance: {
             hints: false,
         },
-        target: 'node',
-        devtool: 'inline-source-map',
         node: {
             console: false,
             process: false,
@@ -101,7 +120,7 @@ module.exports = [
             new webpack.BannerPlugin({
                 raw: true,
                 entryOnly: false,
-                banner: `require('${
+                banner: `if (process.env.NODE_ENV === 'development') require('${
                   // Is source-map-support installed as project dependency, or linked?
                   (require.resolve('source-map-support').indexOf(process.cwd()) === 0)
                     // If it's resolvable from the project root, it's a project dependency.

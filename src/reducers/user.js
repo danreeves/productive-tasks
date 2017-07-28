@@ -1,5 +1,5 @@
 import { cookie } from 'redux-effects-universal-cookie';
-import aguid from 'aguid';
+import { hash } from 'spark-md5';
 import createReducer from '../util/create-reducer';
 
 export const types = {
@@ -33,7 +33,7 @@ export const actions = {
             const user = {
                 name: 'Dan',
                 email: 'hey@danreev.es',
-                id: aguid('hey@danreeves'),
+                id: hash('hey@danreeves'),
             };
             dispatch({
                 type: types.LOG_IN,

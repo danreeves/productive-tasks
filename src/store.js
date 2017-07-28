@@ -1,14 +1,13 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
-import logger from 'redux-logger';
 import cookieMiddleware from 'redux-effects-universal-cookie';
 import get from 'lodash.get';
-import aguid from 'aguid';
+import { hash } from 'spark-md5';
 import reducers from './reducers';
 
 const initialState = global.$$initialState || undefined;
 const composer = global.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose; // eslint-disable-line no-underscore-dangle
-const localIdentifier = aguid();
+const localIdentifier = hash((Math.random() * Date.now()).toString());
 
 const pouchSync = db => (store) => {
 
@@ -92,6 +91,7 @@ export default function makeStore ({ cookies, pouchdb } = {}) {
         pouchSync(pouchdb),
     ];
     if (process.env.NODE_ENV === 'development') {
+        const logger = require('redux-logger'); // eslint-disable-line global-require
         middleware.push(logger());
     }
     const enhancers = composer(

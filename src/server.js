@@ -1,13 +1,12 @@
 /* eslint no-param-reassign: 0 */
 import 'dotenv/config';
-import 'babel-polyfill';
+import 'regenerator-runtime/runtime';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
 import styleSheet from 'styled-components/lib/models/StyleSheet';
 import { RouterContext, match } from 'react-router';
 import { Provider } from 'react-redux';
 import Koa from 'koa';
-import serve from 'koa-static';
 import { cookie } from 'redux-effects-universal-cookie';
 import PouchDB from 'pouchdb-node';
 import upsert from 'pouchdb-upsert';
@@ -18,6 +17,10 @@ import bundle from './server/js-bundle';
 import HTML from './server/html';
 import routes from './routes';
 import createStore from './store';
+
+process.on('unhandledRejection', (reason) => {
+    console.log(`Reason: ${JSON.stringify(reason)}`);
+});
 
 PouchDB.plugin(upsert);
 const pouchdb = new PouchDB('https://danreeves.cloudant.com/productive-tasks', {
@@ -31,7 +34,6 @@ const port = 3000;
 
 app.use(favicon);
 app.use(bundle);
-app.use(serve('static'));
 
 app.use(async (ctx, next) => {
     console.log(`Request: ${ctx.url}`);

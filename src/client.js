@@ -1,4 +1,4 @@
-import 'babel-polyfill';
+import 'regenerator-runtime/runtime';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
@@ -26,4 +26,4 @@ pouchdb.get(initialState.user.id || 'anonymous')
 // Render HTML on the browser
 ReactDOM.render(<Provider store={store}>{routes}</Provider>, document.getElementById('root'));
 // Remove the ssr rendered styles
-document.getElementById('ssr-styles').remove();
+// document.getElementById('ssr-styles').remove();
